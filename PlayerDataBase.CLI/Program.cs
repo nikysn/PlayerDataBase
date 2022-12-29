@@ -2,7 +2,6 @@
 using PlayerDataBase.CLI;
 
 Database database = new Database();
-//database.CreatePlayers();
 bool isWorking = true;
 
 while (isWorking)
@@ -27,7 +26,7 @@ while (isWorking)
              database.Display();
             break;
         case "3":
-            // database.DeletePlayer();
+             database.DeletePlayer();
             break;
         case "4":
             // database.BanPlayer();
