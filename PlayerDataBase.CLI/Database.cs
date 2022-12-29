@@ -1,4 +1,6 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace PlayerDataBase.CLI;
 
@@ -6,47 +8,64 @@ public class Database
 {
     private List<Player> _players = new List<Player>();
     private const string DirectoryName = "./dataBase/";
+    static string FileName { get; set; } = "db.json";
+    string DBFilePath { get; set; } = DirectoryName + FileName;
+    //string filePath = Path.Combine(DirectoryName, fileName);
 
-    public void CreatePlayers()
+    private int CreateId()
     {
-        _players.Add(new Player("Vadim", 2));
-        _players.Add(new Player("Amir", 10));
-    }
-    private List<Player> Get()
-    {
-        var files = Directory.GetFiles(DirectoryName);
-        var players = new List<Player>();
-
-        foreach (var file in files)
+        int id = 1;
+        for (int i = 1; i <= GetPlayers().Count; i++)
         {
-            var json = File.ReadAllText(file);
-            var player = JsonSerializer.Deserialize<Player>(json);
-
-            if(player == null)
+            for (int j = 0; j < GetPlayers().Count; j++)
             {
-                throw new Exception("Player cannot be deserialized");
+                if (id == GetPlayers()[j].Id)
+                {
+                    id++;
+                    i--;
+                }
             }
-            players.Add(player);
         }
-        return players;
+        return GetPlayers().Count == 0 ? 1 : id;
+    }
+
+    private void SaveToDB(List<Player> players)
+    {
+        //string serializedUsers = JsonConvert.SerializeObject(players, new JsonSerializerOptions{WriteIndented = true});
+        // File.WriteAllText()
+
+    }
+
+    public List<Player> GetPlayers()
+    {
+        if(File.Exists(DBFilePath) == false)
+        {
+            var file = File.Create(DBFilePath);
+            file.Close();
+        }
+
+        string json = File.ReadAllText(DBFilePath);
+        List<Player> currentPlayers = JsonConvert.DeserializeObject<List<Player>>(json);
+        return currentPlayers ?? new List<Player>();
     }
 
     public bool AddPlayer()
     {
         Console.Write("Введите ник игрока : ");
-        string name = Console.ReadLine();
+        string? name = Console.ReadLine();
         Console.Write("Введите уровень игрока : ");
         int level;
         bool getNumber = int.TryParse(Console.ReadLine(), out level);
 
         if (getNumber)
         {
-            Directory.CreateDirectory(DirectoryName);
-            _players.Add(new Player(name, level));
-            var json = JsonSerializer.Serialize(_players.Last(), new JsonSerializerOptions { WriteIndented = true });
-            var fileName = $"{Guid.NewGuid()}.json";
-            var filePath = Path.Combine(DirectoryName, fileName);
-            File.WriteAllText(filePath, json);
+            List<Player> allCurrentPlayers = GetPlayers();
+            allCurrentPlayers.Add(new Player(CreateId(), name, level));
+
+            var json = System.Text.Json.JsonSerializer.Serialize(allCurrentPlayers, new JsonSerializerOptions { WriteIndented = true });
+            //var json = JsonConvert.SerializeObject(allCurrentPlayers);
+            //var fileName = $"{Guid.NewGuid()}.json";
+            File.WriteAllText(DBFilePath, json);
 
             return true;
         }
@@ -60,16 +79,31 @@ public class Database
     public void Display()
     {
         Console.WriteLine("Список игроков:");
-
-        for (int i = 0; i < Get().Count; i++)
+      
+        for (int i = 0; i < GetPlayers().Count; i++)
         {
-            Get()[i].Display();
+            GetPlayers()[i].Display();
         }
     }
 
     public void DeletePlayer()
     {
-        _players.RemoveAt(GetPlayerNumber("которого хотите удалить:") - 1);
+        int playerId = GetPlayerNumber("которого нужно удалить: ");
+        List<Player> allCurrentPlayers = GetPlayers();
+        Player playerForDelete = allCurrentPlayers.FirstOrDefault(u => u.Id == playerId);
+
+        if(playerForDelete != null)
+        {
+            allCurrentPlayers.Remove(playerForDelete);
+            var json = System.Text.Json.JsonSerializer.Serialize(allCurrentPlayers, new JsonSerializerOptions { WriteIndented = true });
+            File.WriteAllText(DBFilePath, json);
+        }
+
+
+        // var serializedUsers = JsonConvert.
+        //  var json = JsonSerializer.Serialize(allCurrentPlayers.Last(), new JsonSerializerOptions { WriteIndented = true });
+        // _players.RemoveAt(GetPlayerNumber("которого хотите удалить:") - 1);
+
     }
 
     public int GetPlayerNumber(string command)
@@ -80,8 +114,8 @@ public class Database
         while (getNumber != true)
         {
             Display();
-            Console.WriteLine($"Введите порядковый номер игрока {command}");
-            string input = Console.ReadLine();
+            Console.WriteLine($"Введите ID игрока {command}");
+            string? input = Console.ReadLine();
             getNumber = int.TryParse(input, out playerNumber);
         }
 
