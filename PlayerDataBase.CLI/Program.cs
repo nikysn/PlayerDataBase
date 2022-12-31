@@ -6,7 +6,7 @@ bool isWorking = true;
 
 while (isWorking)
 {
-    Console.Clear();
+   // Console.Clear();
     Console.WriteLine("Введите номер команды :\n" +
         "1. Добавить игрока\n" +
         "2. Показать список игроков\n" +
@@ -29,7 +29,7 @@ while (isWorking)
              database.DeletePlayer();
             break;
         case "4":
-            // database.BanPlayer();
+             database.BanPlayer();
             break;
         case "5":
             // database.UnbanPlayer();

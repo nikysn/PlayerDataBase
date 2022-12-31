@@ -1,16 +1,15 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Newtonsoft.Json;
+//using Newtonsoft.Json;
 
 namespace PlayerDataBase.CLI;
 
 public class Database
 {
-    private List<Player> _players = new List<Player>();
     private const string DirectoryName = "./dataBase/";
     static string FileName { get; set; } = "db.json";
     string DBFilePath { get; set; } = DirectoryName + FileName;
-    //string filePath = Path.Combine(DirectoryName, fileName);
+    //string filePath = Path.Combine(DirectoryName, FileName);
 
     private int CreateId()
     {
@@ -29,27 +28,22 @@ public class Database
         return GetPlayers().Count == 0 ? 1 : id;
     }
 
-    private void SaveToDB(List<Player> players)
-    {
-        //string serializedUsers = JsonConvert.SerializeObject(players, new JsonSerializerOptions{WriteIndented = true});
-        // File.WriteAllText()
-
-    }
-
     public List<Player> GetPlayers()
     {
-        if(File.Exists(DBFilePath) == false)
+        if (File.Exists(DBFilePath) == false)
         {
             var file = File.Create(DBFilePath);
             file.Close();
         }
 
-        string json = File.ReadAllText(DBFilePath);
-        List<Player> currentPlayers = JsonConvert.DeserializeObject<List<Player>>(json);
-        return currentPlayers ?? new List<Player>();
+        var json = File.ReadAllText(DBFilePath);
+        //List<Player> currentPlayers = JsonConvert.DeserializeObject<List<Player>>(json);
+        List<Player> curPlayers = JsonSerializer.Deserialize<List<Player>>(json);
+
+        return curPlayers ?? new List<Player>();
     }
 
-    public bool AddPlayer()
+    public void AddPlayer()
     {
         Console.Write("Введите ник игрока : ");
         string? name = Console.ReadLine();
@@ -66,20 +60,17 @@ public class Database
             //var json = JsonConvert.SerializeObject(allCurrentPlayers);
             //var fileName = $"{Guid.NewGuid()}.json";
             File.WriteAllText(DBFilePath, json);
-
-            return true;
         }
         else
         {
             Console.WriteLine("Вы ввели не коректные данные");
-            return false;
         }
     }
 
     public void Display()
     {
         Console.WriteLine("Список игроков:");
-      
+
         for (int i = 0; i < GetPlayers().Count; i++)
         {
             GetPlayers()[i].Display();
@@ -92,18 +83,12 @@ public class Database
         List<Player> allCurrentPlayers = GetPlayers();
         Player playerForDelete = allCurrentPlayers.FirstOrDefault(u => u.Id == playerId);
 
-        if(playerForDelete != null)
+        if (playerForDelete != null)
         {
             allCurrentPlayers.Remove(playerForDelete);
             var json = System.Text.Json.JsonSerializer.Serialize(allCurrentPlayers, new JsonSerializerOptions { WriteIndented = true });
             File.WriteAllText(DBFilePath, json);
         }
-
-
-        // var serializedUsers = JsonConvert.
-        //  var json = JsonSerializer.Serialize(allCurrentPlayers.Last(), new JsonSerializerOptions { WriteIndented = true });
-        // _players.RemoveAt(GetPlayerNumber("которого хотите удалить:") - 1);
-
     }
 
     public int GetPlayerNumber(string command)
@@ -124,11 +109,21 @@ public class Database
 
     public void BanPlayer()
     {
-        _players[GetPlayerNumber("которого нужно забанить") - 1].Ban();
+        int playerId = GetPlayerNumber("которого нужно забанить: ");
+        List<Player> allCurrentPlayers = GetPlayers();
+        Player playerForBanned = allCurrentPlayers.FirstOrDefault(u => u.Id == playerId);
+
+        if (playerForBanned != null)
+        {
+            playerForBanned.Ban();
+            var json = System.Text.Json.JsonSerializer.Serialize(allCurrentPlayers, new JsonSerializerOptions { WriteIndented = true });
+            File.WriteAllText(DBFilePath, json);
+        }
+        //_players[GetPlayerNumber("которого нужно забанить") - 1].Ban();
     }
 
-    public void UnbanPlayer()
+    /*public void UnbanPlayer()
     {
         _players[GetPlayerNumber("которого нужно разбанить") - 1].Unban();
-    }
+    }*/
 }
