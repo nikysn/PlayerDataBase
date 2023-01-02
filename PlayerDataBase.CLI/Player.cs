@@ -10,28 +10,17 @@ public class Player
         BanStatus = banStatus;
     }
 
-    public int Id { get; private set; }
-    public string Name { get; private set; }
-    public int Level { get; private set; }
-    public string BanStatus { get; private set; }
-   /* public bool IsBanned {get; private set;}
-     public string BanStatus
-     {
-         get
-         {
-             return _ = IsBanned == true ? "banned" : "not banned";
-         }
-     }
-*/
+    public int Id { get; protected set; }
+    public string Name { get; protected set; }
+    public int Level { get; protected set; }
+    public string BanStatus { get; protected set; }
 
-    //public void Ban() => IsBanned = true;
+     public override string ToString()
+    {
+        return $"Id - {Id}. Ник - {Name}. Уровень - {Level}. Статус бана: {BanStatus}";
+    }
 
     public void Ban() => BanStatus = "banned";
 
     public void Unban() => BanStatus = "not banned";
-
-    public override string ToString()
-    {
-        return $"Id - {Id}. Ник - {Name}. Уровень - {Level}. Статус бана: {BanStatus}";
-    }
 }

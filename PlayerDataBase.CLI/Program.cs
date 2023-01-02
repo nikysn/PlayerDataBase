@@ -29,10 +29,10 @@ while (isWorking)
             database.DeletePlayer();
             break;
         case "4":
-            database.BanPlayer();
+            database.ChangeBanStatus(commandNumber);
             break;
         case "5":
-            database.UnbanPlayer();
+            database.ChangeBanStatus(commandNumber);
             break;
         case "6":
             isWorking = false;

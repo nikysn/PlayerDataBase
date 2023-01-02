@@ -29,6 +29,7 @@ public class Database
 
     public Player[] GetPlayers()
     {
+        
         Player[] emptyArray = Array.Empty<Player>();
 
         if (!File.Exists(DBFilePath))
@@ -43,8 +44,9 @@ public class Database
         }
 
         var players = JsonSerializer.Deserialize<Player[]>(json);
+        
 
-        return players ?? Array.Empty<Player>();
+        return players ?? emptyArray;
     }
 
     public void AddPlayer()
@@ -81,7 +83,7 @@ public class Database
 
     public void DeletePlayer()
     {
-        int playerId = GetPlayerId("which needs to be removed: ");
+        int playerId = GetPlayerId();
         List<Player> players = GetPlayers().ToList();
         Player playerForDelete = players.FirstOrDefault(u => u.Id == playerId);
 
@@ -93,7 +95,7 @@ public class Database
         }
     }
 
-    public int GetPlayerId(string command)
+    public int GetPlayerId()
     {
         int playerId;
         bool isPlayerId;
@@ -101,7 +103,7 @@ public class Database
         do
         {
             Display();
-            Console.WriteLine($"Enter player id {command}");
+            Console.WriteLine($"Enter player id:");
             string? input = Console.ReadLine();
             isPlayerId = int.TryParse(input, out playerId);
             if (!isPlayerId) Console.WriteLine("you entered incorrect data");
@@ -110,31 +112,21 @@ public class Database
         return playerId;
     }
 
-    public void BanPlayer()
+    public void ChangeBanStatus(string commandNumber)
     {
-        int playerId = GetPlayerId("who needs to be banned: ");
-        List<Player> players = GetPlayers().ToList();
+        int playerId = GetPlayerId();
+
+        List<Player> players = GetPlayers().Cast<Player>().ToList();
         Player playerForBanned = players.FirstOrDefault(u => u.Id == playerId);
 
         if (playerForBanned != null)
         {
-            playerForBanned.Ban();
+            if(commandNumber == "4") playerForBanned.Ban();
+            if(commandNumber == "5") playerForBanned.Unban();
             var json = JsonSerializer.Serialize(players, new JsonSerializerOptions { WriteIndented = true });
             File.WriteAllText(DBFilePath, json);
+            Console.WriteLine("Operation completed");
         }
     }
 
-    public void UnbanPlayer()
-    {
-        int playerId = GetPlayerId("who needs to be unbanned: ");
-        List<Player> players = GetPlayers().ToList();
-        Player playerForBanned = players.FirstOrDefault(u => u.Id == playerId);
-
-        if (playerForBanned != null)
-        {
-            playerForBanned.Unban();
-            var json = JsonSerializer.Serialize(players, new JsonSerializerOptions { WriteIndented = true });
-            File.WriteAllText(DBFilePath, json);
-        }
-    }
 }
