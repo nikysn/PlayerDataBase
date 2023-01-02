@@ -1,129 +1,140 @@
 using System.Text.Json;
-using System.Text.Json.Serialization;
-//using Newtonsoft.Json;
 
 namespace PlayerDataBase.CLI;
 
 public class Database
 {
     private const string DirectoryName = "./dataBase/";
-    static string FileName { get; set; } = "db.json";
-    string DBFilePath { get; set; } = DirectoryName + FileName;
-    //string filePath = Path.Combine(DirectoryName, FileName);
+    private const string FileName = "db.json";
+    private const string DBFilePath = DirectoryName + FileName;
 
     private int CreateId()
     {
         int id = 1;
-        for (int i = 1; i <= GetPlayers().Count; i++)
+        var players = GetPlayers();
+
+        for (int i = 1; i <= players.Length; i++)
         {
-            for (int j = 0; j < GetPlayers().Count; j++)
+            for (int j = 0; j < players.Length; j++)
             {
-                if (id == GetPlayers()[j].Id)
+                if (id == players[j].Id)
                 {
                     id++;
                     i--;
                 }
             }
         }
-        return GetPlayers().Count == 0 ? 1 : id;
+        return players.Length == 0 ? 1 : id;
     }
 
-    public List<Player> GetPlayers()
+    public Player[] GetPlayers()
     {
-        if (File.Exists(DBFilePath) == false)
+        Player[] emptyArray = Array.Empty<Player>();
+
+        if (!File.Exists(DBFilePath))
         {
-            var file = File.Create(DBFilePath);
-            file.Close();
+            return emptyArray;
+        }
+        var json = File.ReadAllText(DBFilePath);
+
+        if (string.IsNullOrWhiteSpace(json))
+        {
+            return emptyArray;
         }
 
-        var json = File.ReadAllText(DBFilePath);
-        //List<Player> currentPlayers = JsonConvert.DeserializeObject<List<Player>>(json);
-        List<Player> curPlayers = JsonSerializer.Deserialize<List<Player>>(json);
+        var players = JsonSerializer.Deserialize<Player[]>(json);
 
-        return curPlayers ?? new List<Player>();
+        return players ?? Array.Empty<Player>();
     }
 
     public void AddPlayer()
     {
-        Console.Write("Введите ник игрока : ");
+        Console.Write("Enter player name: ");
         string? name = Console.ReadLine();
-        Console.Write("Введите уровень игрока : ");
-        int level;
-        bool getNumber = int.TryParse(Console.ReadLine(), out level);
 
-        if (getNumber)
+        Console.Write("Enter player level: ");
+        bool isLevel = int.TryParse(Console.ReadLine(), out int level);
+        if (!isLevel)
         {
-            List<Player> allCurrentPlayers = GetPlayers();
-            allCurrentPlayers.Add(new Player(CreateId(), name, level));
+            Console.WriteLine("You entered incorrect data");
+            return;
+        }
 
-            var json = System.Text.Json.JsonSerializer.Serialize(allCurrentPlayers, new JsonSerializerOptions { WriteIndented = true });
-            //var json = JsonConvert.SerializeObject(allCurrentPlayers);
-            //var fileName = $"{Guid.NewGuid()}.json";
-            File.WriteAllText(DBFilePath, json);
-        }
-        else
-        {
-            Console.WriteLine("Вы ввели не коректные данные");
-        }
+        var newPlayer = new Player(CreateId(), name, level);
+        List<Player> players = GetPlayers().ToList();
+        players.Add(newPlayer);
+
+        var json = JsonSerializer.Serialize(players, new JsonSerializerOptions { WriteIndented = true });
+        File.WriteAllText(DBFilePath, json);
     }
 
     public void Display()
     {
-        Console.WriteLine("Список игроков:");
+        Console.WriteLine("List of players:");
+        var players = GetPlayers();
 
-        for (int i = 0; i < GetPlayers().Count; i++)
+        for (int i = 0; i < players.Length; i++)
         {
-            GetPlayers()[i].Display();
+            Console.WriteLine(players[i]);
         }
     }
 
     public void DeletePlayer()
     {
-        int playerId = GetPlayerNumber("которого нужно удалить: ");
-        List<Player> allCurrentPlayers = GetPlayers();
-        Player playerForDelete = allCurrentPlayers.FirstOrDefault(u => u.Id == playerId);
+        int playerId = GetPlayerId("which needs to be removed: ");
+        List<Player> players = GetPlayers().ToList();
+        Player playerForDelete = players.FirstOrDefault(u => u.Id == playerId);
 
         if (playerForDelete != null)
         {
-            allCurrentPlayers.Remove(playerForDelete);
-            var json = System.Text.Json.JsonSerializer.Serialize(allCurrentPlayers, new JsonSerializerOptions { WriteIndented = true });
+            players.Remove(playerForDelete);
+            var json = JsonSerializer.Serialize(players, new JsonSerializerOptions { WriteIndented = true });
             File.WriteAllText(DBFilePath, json);
         }
     }
 
-    public int GetPlayerNumber(string command)
+    public int GetPlayerId(string command)
     {
-        int playerNumber = 0;
-        bool getNumber = false;
+        int playerId;
+        bool isPlayerId;
 
-        while (getNumber != true)
+        do
         {
             Display();
-            Console.WriteLine($"Введите ID игрока {command}");
+            Console.WriteLine($"Enter player id {command}");
             string? input = Console.ReadLine();
-            getNumber = int.TryParse(input, out playerNumber);
-        }
+            isPlayerId = int.TryParse(input, out playerId);
+            if (!isPlayerId) Console.WriteLine("you entered incorrect data");
+        } while (!isPlayerId);
 
-        return playerNumber;
+        return playerId;
     }
 
     public void BanPlayer()
     {
-        int playerId = GetPlayerNumber("которого нужно забанить: ");
-        List<Player> allCurrentPlayers = GetPlayers();
-        Player playerForBanned = allCurrentPlayers.FirstOrDefault(u => u.Id == playerId);
+        int playerId = GetPlayerId("who needs to be banned: ");
+        List<Player> players = GetPlayers().ToList();
+        Player playerForBanned = players.FirstOrDefault(u => u.Id == playerId);
 
         if (playerForBanned != null)
         {
             playerForBanned.Ban();
-            var json = System.Text.Json.JsonSerializer.Serialize(allCurrentPlayers, new JsonSerializerOptions { WriteIndented = true });
+            var json = JsonSerializer.Serialize(players, new JsonSerializerOptions { WriteIndented = true });
             File.WriteAllText(DBFilePath, json);
         }
-        //_players[GetPlayerNumber("которого нужно забанить") - 1].Ban();
     }
 
-    /*public void UnbanPlayer()
+    public void UnbanPlayer()
     {
-        _players[GetPlayerNumber("которого нужно разбанить") - 1].Unban();
-    }*/
+        int playerId = GetPlayerId("who needs to be unbanned: ");
+        List<Player> players = GetPlayers().ToList();
+        Player playerForBanned = players.FirstOrDefault(u => u.Id == playerId);
+
+        if (playerForBanned != null)
+        {
+            playerForBanned.Unban();
+            var json = JsonSerializer.Serialize(players, new JsonSerializerOptions { WriteIndented = true });
+            File.WriteAllText(DBFilePath, json);
+        }
+    }
 }
