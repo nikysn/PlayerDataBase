@@ -29,7 +29,7 @@ public class Database
 
     public Player[] GetPlayers()
     {
-        
+
         Player[] emptyArray = Array.Empty<Player>();
 
         if (!File.Exists(DBFilePath))
@@ -44,7 +44,7 @@ public class Database
         }
 
         var players = JsonSerializer.Deserialize<Player[]>(json);
-        
+
 
         return players ?? emptyArray;
     }
@@ -121,8 +121,8 @@ public class Database
 
         if (playerForBanned != null)
         {
-            if(commandNumber == "4") playerForBanned.Ban();
-            if(commandNumber == "5") playerForBanned.Unban();
+            if (commandNumber == "4") playerForBanned.Ban();
+            if (commandNumber == "5") playerForBanned.Unban();
             var json = JsonSerializer.Serialize(players, new JsonSerializerOptions { WriteIndented = true });
             File.WriteAllText(DBFilePath, json);
             Console.WriteLine("Operation completed");
