@@ -1,0 +1,20 @@
+[
+  {
+    "Id": 1,
+    "Name": "nik",
+    "Level": 111,
+    "BanStatus": "not banned"
+  },
+  {
+    "Id": 2,
+    "Name": "qqq",
+    "Level": 111,
+    "BanStatus": "banned"
+  },
+  {
+    "Id": 3,
+    "Name": "rrr",
+    "Level": 333,
+    "BanStatus": "not bannet"
+  }
+]
