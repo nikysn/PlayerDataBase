@@ -23,7 +23,7 @@ while (isWorking)
             database.AddPlayer();
             break;
         case "2":
-            database.Display();
+            database.Display(database.GetPlayers());
             break;
         case "3":
             database.DeletePlayer();

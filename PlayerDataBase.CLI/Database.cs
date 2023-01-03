@@ -8,23 +8,28 @@ public class Database
     private const string FileName = "db.json";
     private const string DBFilePath = DirectoryName + FileName;
 
-    private int CreateId()
+    private void DBUpdate(List<Player> players)
     {
-        int id = 1;
-        var players = GetPlayers();
+        var json = JsonSerializer.Serialize(players, new JsonSerializerOptions { WriteIndented = true });
+        File.WriteAllText(DBFilePath, json);
+        Console.WriteLine("Operation completed");
+    }
 
-        for (int i = 1; i <= players.Length; i++)
+    private int GetPlayerNumber()
+    {
+        int playerId;
+        bool isPlayerId;
+
+        do
         {
-            for (int j = 0; j < players.Length; j++)
-            {
-                if (id == players[j].Id)
-                {
-                    id++;
-                    i--;
-                }
-            }
-        }
-        return players.Length == 0 ? 1 : id;
+            Display(GetPlayers());
+            Console.WriteLine($"Enter the player's serial number:");
+            string? input = Console.ReadLine();
+            isPlayerId = int.TryParse(input, out playerId);
+            if (!isPlayerId) Console.WriteLine("you entered incorrect data");
+        } while (!isPlayerId);
+
+        return playerId;
     }
 
     public Player[] GetPlayers()
@@ -62,71 +67,41 @@ public class Database
             return;
         }
 
-        var newPlayer = new Player(CreateId(), name, level);
+        var newPlayer = new Player(name, level);
         List<Player> players = GetPlayers().ToList();
         players.Add(newPlayer);
 
-        var json = JsonSerializer.Serialize(players, new JsonSerializerOptions { WriteIndented = true });
-        File.WriteAllText(DBFilePath, json);
+        DBUpdate(players);
     }
 
-    public void Display()
+    public void Display(Player[] players)
     {
         Console.WriteLine("List of players:");
-        var players = GetPlayers();
 
         for (int i = 0; i < players.Length; i++)
         {
-            Console.WriteLine(players[i]);
+            Console.WriteLine($"{i + 1}.{players[i]}");
         }
     }
 
     public void DeletePlayer()
     {
-        int playerId = GetPlayerId();
+        int playerNumber = GetPlayerNumber() - 1;
         List<Player> players = GetPlayers().ToList();
-        Player playerForDelete = players.FirstOrDefault(u => u.Id == playerId);
 
-        if (playerForDelete != null)
-        {
-            players.Remove(playerForDelete);
-            var json = JsonSerializer.Serialize(players, new JsonSerializerOptions { WriteIndented = true });
-            File.WriteAllText(DBFilePath, json);
-        }
-    }
+        players.Remove(players[playerNumber]);
 
-    public int GetPlayerId()
-    {
-        int playerId;
-        bool isPlayerId;
-
-        do
-        {
-            Display();
-            Console.WriteLine($"Enter player id:");
-            string? input = Console.ReadLine();
-            isPlayerId = int.TryParse(input, out playerId);
-            if (!isPlayerId) Console.WriteLine("you entered incorrect data");
-        } while (!isPlayerId);
-
-        return playerId;
+        DBUpdate(players);
     }
 
     public void ChangeBanStatus(string commandNumber)
     {
-        int playerId = GetPlayerId();
-
+        int playerNumber = GetPlayerNumber() - 1;
         List<Player> players = GetPlayers().Cast<Player>().ToList();
-        Player playerForBanned = players.FirstOrDefault(u => u.Id == playerId);
 
-        if (playerForBanned != null)
-        {
-            if (commandNumber == "4") playerForBanned.Ban();
-            if (commandNumber == "5") playerForBanned.Unban();
-            var json = JsonSerializer.Serialize(players, new JsonSerializerOptions { WriteIndented = true });
-            File.WriteAllText(DBFilePath, json);
-            Console.WriteLine("Operation completed");
-        }
+        if (commandNumber == "4") players[playerNumber].Ban();
+        if (commandNumber == "5") players[playerNumber].UnBan();
+
+        DBUpdate(players);
     }
-
 }

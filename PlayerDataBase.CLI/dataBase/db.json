@@ -1,20 +1,14 @@
 [
   {
-    "Id": 1,
-    "Name": "nik",
-    "Level": 111,
-    "BanStatus": "banned"
-  },
-  {
-    "Id": 2,
+    "Id": "f6aed7d5-31a4-4d33-979d-c77a33514514",
     "Name": "qqq",
     "Level": 111,
-    "BanStatus": "banned"
+    "BanStatus": 0
   },
   {
-    "Id": 3,
-    "Name": "rrr",
-    "Level": 333,
-    "BanStatus": "banned"
+    "Id": "c402ddc5-9091-487d-8335-93f7092618ed",
+    "Name": "www",
+    "Level": 222,
+    "BanStatus": 1
   }
 ]
