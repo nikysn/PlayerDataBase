@@ -5,53 +5,47 @@ namespace PlayerDataBase.CLI;
 public class Database
 {
     private const string DirectoryName = "./dataBase/";
-    private const string FileName = "db.json";
-    private const string DBFilePath = DirectoryName + FileName;
 
-    private void DBUpdate(List<Player> players)
+    private void DBUpdate(string FileName, Player player)
     {
-        var json = JsonSerializer.Serialize(players, new JsonSerializerOptions { WriteIndented = true });
-        File.WriteAllText(DBFilePath, json);
+        string FilePath = Path.Combine(DirectoryName, FileName);
+        var json = JsonSerializer.Serialize(player, new JsonSerializerOptions { WriteIndented = true });
+        File.WriteAllText(FilePath, json);
+
         Console.WriteLine("Operation completed");
     }
 
     private int GetPlayerNumber()
     {
-        int playerId;
-        bool isPlayerId;
+        int playerNumber;
+        bool isPlayerNumber;
 
         do
         {
             Display(GetPlayers());
             Console.WriteLine($"Enter the player's serial number:");
             string? input = Console.ReadLine();
-            isPlayerId = int.TryParse(input, out playerId);
-            if (!isPlayerId) Console.WriteLine("you entered incorrect data");
-        } while (!isPlayerId);
+            isPlayerNumber = int.TryParse(input, out playerNumber);
+            if (!isPlayerNumber) Console.WriteLine("you entered incorrect data");
+        } while (!isPlayerNumber);
 
-        return playerId;
+        return playerNumber;
     }
 
     public Player[] GetPlayers()
     {
+        var files = Directory.GetFiles(DirectoryName);
 
-        Player[] emptyArray = Array.Empty<Player>();
+        List<Player> players = new List<Player>();
 
-        if (!File.Exists(DBFilePath))
+        foreach (var file in files)
         {
-            return emptyArray;
+            var json = File.ReadAllText(file);
+            var player = JsonSerializer.Deserialize<Player>(json);
+            if (player == null) throw new Exception("Player cannot be deserialized");
+            players.Add(player);
         }
-        var json = File.ReadAllText(DBFilePath);
-
-        if (string.IsNullOrWhiteSpace(json))
-        {
-            return emptyArray;
-        }
-
-        var players = JsonSerializer.Deserialize<Player[]>(json);
-
-
-        return players ?? emptyArray;
+        return players.ToArray();
     }
 
     public void AddPlayer()
@@ -66,12 +60,10 @@ public class Database
             Console.WriteLine("You entered incorrect data");
             return;
         }
+        var newPlayer = new Player($"{Guid.NewGuid()}", name, level);
 
-        var newPlayer = new Player(name, level);
-        List<Player> players = GetPlayers().ToList();
-        players.Add(newPlayer);
-
-        DBUpdate(players);
+        string FileName = $"{newPlayer.Id}.json";
+        DBUpdate(FileName,newPlayer);
     }
 
     public void Display(Player[] players)
@@ -89,19 +81,19 @@ public class Database
         int playerNumber = GetPlayerNumber() - 1;
         List<Player> players = GetPlayers().ToList();
 
-        players.Remove(players[playerNumber]);
-
-        DBUpdate(players);
+        string FilePath = Path.Combine(DirectoryName, $"{players[playerNumber].Id}.json");
+        File.Delete(FilePath);
     }
 
     public void ChangeBanStatus(string commandNumber)
     {
         int playerNumber = GetPlayerNumber() - 1;
-        List<Player> players = GetPlayers().Cast<Player>().ToList();
+        List<Player> players = GetPlayers().ToList();
 
         if (commandNumber == "4") players[playerNumber].Ban();
         if (commandNumber == "5") players[playerNumber].UnBan();
 
-        DBUpdate(players);
+        string FileName = $"{players[playerNumber].Id}.json";
+        DBUpdate(FileName,players[playerNumber]);
     }
 }

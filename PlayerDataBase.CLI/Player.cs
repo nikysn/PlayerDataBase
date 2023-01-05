@@ -2,14 +2,14 @@ namespace PlayerDataBase.CLI;
 
 public class Player
 {
-    public Player(string name, int level, BanStatuses banStatus = BanStatuses.NotBanned)
+    public Player(string id,string name, int level, BanStatuses banStatus = BanStatuses.NotBanned)
     {
         Name = name;
         Level = level;
-        Id = Guid.NewGuid();
+        Id = id;
         BanStatus = banStatus;
     }
-    public Guid Id { get; protected set; }
+    public string Id { get; protected set; }
     public string Name { get; protected set; }
     public int Level { get; protected set; }
     public BanStatuses BanStatus { get; protected set; }
