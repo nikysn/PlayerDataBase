@@ -63,7 +63,7 @@ public class Database
         bool isLevel = int.TryParse(Console.ReadLine(), out int level);
         if (!isLevel)
         {
-            Console.WriteLine("You entered incorrect data");
+            Console.WriteLine("You entered incorrect dataa");
             return;
         }
 
