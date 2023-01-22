@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlayerDataBase.API", "Playe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlayerDataBase.DataAccess", "PlayerDataBase.DataAccess\PlayerDataBase.DataAccess.csproj", "{42165BC0-5C6A-45DB-A02F-2241539E557D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlayerDataBase.UnitTests", "PlayerDataBase.UnitTests\PlayerDataBase.UnitTests.csproj", "{2F29074A-5EF7-47BC-B919-B3AC1F3B4B79}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{42165BC0-5C6A-45DB-A02F-2241539E557D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{42165BC0-5C6A-45DB-A02F-2241539E557D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{42165BC0-5C6A-45DB-A02F-2241539E557D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2F29074A-5EF7-47BC-B919-B3AC1F3B4B79}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2F29074A-5EF7-47BC-B919-B3AC1F3B4B79}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2F29074A-5EF7-47BC-B919-B3AC1F3B4B79}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2F29074A-5EF7-47BC-B919-B3AC1F3B4B79}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

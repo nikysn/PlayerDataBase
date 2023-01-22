@@ -4,6 +4,10 @@ public record Player
 {
     public Player(string name, int level, BanStatuses banStatus = BanStatuses.NotBanned)
     {
+        if(string.IsNullOrWhiteSpace(name))
+        {
+            throw new ArgumentException("CreateDate cannot be null or whitespace",paramName: nameof(level));
+        }
         Name = name;
         Level = level;
         BanStatus = banStatus;
