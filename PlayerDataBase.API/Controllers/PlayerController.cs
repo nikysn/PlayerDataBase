@@ -11,15 +11,20 @@ namespace PlayerDataBase.API.Controllers;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [Consumes(MediaTypeNames.Application.Json)]
-public class PlayerController : ControllerBase
+public class PlayersController : ControllerBase
 {
-    private readonly ILogger<PlayerController> _logger;
+    private readonly ILogger<PlayersController> _logger;
+
+    public PlayersController(ILogger<PlayersController> logger)
+    {
+        _logger = logger;
+    }
 
     [HttpGet]
     [ProducesResponseType(typeof(GetPlayerResponse), (int)HttpStatusCode.OK)]
     public async Task<IActionResult> Get()
     {
-        var players = PlayersRepository.GetPlayers();
+        Player[] players = PlayersRepository.GetPlayers();
         var response = new GetPlayerResponse
         {
             Players = players.Select(x => new PlayerDto
@@ -27,9 +32,8 @@ public class PlayerController : ControllerBase
                 Id = x.Id,
                 Name = x.Name,
                 Level = x.Level,
-                BanStatus = (PlayerDto.BanStatuses)x.BanStatus
+                BanStatus = x.BanStatus.ToString()
             }).ToArray()
-
         };
         return Ok(response);
     }
@@ -44,9 +48,9 @@ public class PlayerController : ControllerBase
 
     [HttpDelete]
     [ProducesResponseType((int)HttpStatusCode.OK)]
-    public async Task<IActionResult> Delete(int number)
+    public async Task<IActionResult> Delete(Guid playerId)
     {
-        PlayersRepository.DeletePlayer(number);
+        PlayersRepository.DeletePlayer(playerId);
         return Ok();
     }
 
@@ -54,7 +58,7 @@ public class PlayerController : ControllerBase
     [ProducesResponseType((int)HttpStatusCode.OK)]
     public async Task<IActionResult> UpdateBanStatus([FromBody][Required] UpdateBanStatusRequest  request)
     {
-        PlayersRepository.ChangeBanStatus(request.number, request.action);
+        PlayersRepository.ChangeBanStatus(request.PlayerId, request.Action);
         return Ok();
     }
 }

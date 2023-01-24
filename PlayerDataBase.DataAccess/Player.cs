@@ -17,11 +17,7 @@ public record Player
     public int Level { get; init; }
     public BanStatuses BanStatus { get; protected set; }
 
-    public enum BanStatuses : byte
-    {
-        NotBanned,
-        Banned
-    }
+    
 
     public override string ToString()
     {

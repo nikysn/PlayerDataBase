@@ -36,11 +36,11 @@ public static class PlayersRepository
         return players.ToArray();
     }
 
-    public static void DeletePlayer(int number)
+    public static void DeletePlayer(Guid playerId)
     {
-        List<Player> players = GetPlayers().ToList();
+        //List<Player> players = GetPlayers().ToList();
 
-        string FilePath = Path.Combine(DirectoryName, $"{players[number - 1].Id}.json");
+        string FilePath = Path.Combine(DirectoryName, $"{playerId}.json");
         File.Delete(FilePath);
     }
 
@@ -48,20 +48,30 @@ public static class PlayersRepository
     {
         Player newPlayer = new Player(name, level);
         var PlayerId = Guid.NewGuid();
-        DBUpdate(newPlayer,PlayerId);
+        DBUpdate(newPlayer, PlayerId);
 
         return PlayerId;
     }
 
-    public static void ChangeBanStatus(int number, string action)
+    public static void ChangeBanStatus(Guid playerId, BanStatuses action)
     {
         List<Player> players = GetPlayers().ToList();
-        Player player = players[number - 1];
+        Player player = players.FirstOrDefault(p => p.Id == playerId);
 
-        if (action == "ban") player.Ban();
-        else if (action == "unban") player.UnBan();
+        if (player != null)
+        {
+            switch (action)
+            {
+                case BanStatuses.Banned:
+                    player.Ban();
+                    break;
+                case BanStatuses.NotBanned:
+                    player.UnBan();
+                    break;
+            }
 
-        DBUpdate(player,player.Id);
+            DBUpdate(player, player.Id);
+        }
     }
 }
 
